@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import QRCode from 'react-qr-code';
 import { Button, Input, Card } from '../components/ui';
-import { Plus, Users, Clock, LogOut, QrCode, Download } from 'lucide-react';
+import { Plus, Users, Clock, LogOut, QrCode, Download, MapPin } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
