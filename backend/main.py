@@ -6,7 +6,7 @@ from typing import List
 import os
 import openpyxl
 
-import models, schemas, auth_utils, utils
+import models, schemas, auth_utils, utils, kafka_producer
 from database import engine, get_db
 
 # Create database tables
@@ -161,6 +161,16 @@ def mark_attendance(data: schemas.AttendanceMark, student: models.User = Depends
     db.add(new_attendance)
     db.commit()
     db.refresh(new_attendance)
+
+    # Send to Kafka
+    kafka_producer.send_attendance_event({
+        "session_id": new_attendance.session_id,
+        "student_id": new_attendance.student_id,
+        "student_name": student.name,
+        "timestamp": str(new_attendance.timestamp),
+        "status": new_attendance.status
+    })
+
     return new_attendance
 
 @app.get("/faculty/attendance/{session_id}", response_model=List[schemas.AttendanceResponse])
