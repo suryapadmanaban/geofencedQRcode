@@ -139,7 +139,7 @@ def mark_attendance(data: schemas.AttendanceMark, student: models.User = Depends
     
     # Verify Distance (Geo-fencing)
     distance = utils.calculate_distance(data.latitude, data.longitude, session.latitude, session.longitude)
-    if distance > 300: # 300 meters radius
+    if distance > 500: # 500 meters radius
         print(f"DEBUG: Student too far: {distance}m")
         raise HTTPException(status_code=400, detail=f"Too far from location. Distance: {int(distance)}m")
 

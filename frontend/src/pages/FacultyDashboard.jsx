@@ -113,9 +113,15 @@ export default function FacultyDashboard() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => sendRequest(pos.coords.latitude, pos.coords.longitude),
-        () => sendRequest(12.9716, 77.5946) // Default
+        (err) => {
+          console.error("Location error:", err);
+          alert("Error: Could not get your location. Please ensure GPS is enabled and permissions are granted. Session will be created at a default location.");
+          sendRequest(12.9716, 77.5946); // Default as fallback
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
+      alert("Geolocation is not supported by this browser. Using default location.");
       sendRequest(12.9716, 77.5946);
     }
   };
@@ -164,6 +170,10 @@ export default function FacultyDashboard() {
                 <Button type="submit" className="w-full h-12 text-lg font-bold" disabled={loading}>
                   {loading ? 'Starting...' : 'Generate QR Code'}
                 </Button>
+                <div className="flex items-center justify-center gap-2 text-[10px] text-slate-500 italic">
+                  <MapPin className="w-3 h-3 text-blue-500" />
+                  High-accuracy GPS enabled
+                </div>
               </form>
 
               {/* QR CODE IMAGE - Guaranteed to work */}

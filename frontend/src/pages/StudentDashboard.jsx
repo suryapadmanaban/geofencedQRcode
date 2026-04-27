@@ -318,7 +318,7 @@ export default function StudentDashboard() {
           <div className="text-[11px] leading-relaxed text-slate-400">
             <strong className="text-slate-200 block mb-1 uppercase tracking-wider">Security Requirements</strong>
             <ul className="list-disc list-inside space-y-1">
-              <li>Must be within 300m of the classroom</li>
+              <li>Must be within 500m of the classroom</li>
               <li>GPS/Location services must be enabled</li>
               <li>Attendance can only be marked once per session</li>
             </ul>
