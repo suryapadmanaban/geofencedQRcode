@@ -109,20 +109,41 @@ export default function FacultyDashboard() {
       }
     };
 
-    // Fallback location if geolocation is blocked
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => sendRequest(pos.coords.latitude, pos.coords.longitude),
-        (err) => {
-          console.error("Location error:", err);
-          alert("Error: Could not get your location. Please ensure GPS is enabled and permissions are granted. Session will be created at a default location.");
-          sendRequest(12.9716, 77.5946); // Default as fallback
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    } else {
-      alert("Geolocation is not supported by this browser. Using default location.");
-      sendRequest(12.9716, 77.5946);
+    const getLocation = () => {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          return reject(new Error("Geolocation is not supported by this browser."));
+        }
+        
+        const options = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
+        
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve(pos),
+          (err) => {
+            if (err.code === 3) { // Timeout
+              console.warn("High accuracy timed out, retrying with low accuracy...");
+              navigator.geolocation.getCurrentPosition(resolve, reject, { ...options, enableHighAccuracy: false, timeout: 10000 });
+            } else {
+              reject(err);
+            }
+          },
+          options
+        );
+      });
+    };
+
+    try {
+      const pos = await getLocation();
+      await sendRequest(pos.coords.latitude, pos.coords.longitude);
+    } catch (err) {
+      console.error("Location error:", err);
+      let errorMsg = "Could not get your location. ";
+      if (!window.isSecureContext) {
+        errorMsg += "This is likely because you are not using HTTPS. Geolocation requires a secure connection on most browsers. ";
+      }
+      errorMsg += "Please ensure GPS is enabled and permissions are granted. Session will be created at a default location.";
+      alert("Error: " + errorMsg);
+      await sendRequest(12.9716, 77.5946); // Default as fallback
     }
   };
 

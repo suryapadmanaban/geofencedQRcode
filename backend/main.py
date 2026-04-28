@@ -133,14 +133,20 @@ def mark_attendance(data: schemas.AttendanceMark, student: models.User = Depends
         print(f"DEBUG: Session {data.session_id} not found")
         raise HTTPException(status_code=404, detail="Session not found")
     
-    if datetime.utcnow() > session.expiry_time:
-        print(f"DEBUG: Session {data.session_id} expired. Now: {datetime.utcnow()}, Expiry: {session.expiry_time}")
+    # Check expiration with a 1-minute grace period for clock skew
+    current_time = datetime.utcnow()
+    is_expired = current_time > (session.expiry_time + timedelta(minutes=1))
+    
+    print(f"DEBUG: Session check - Now (UTC): {current_time}, Expiry (UTC): {session.expiry_time}")
+    
+    if is_expired:
+        print(f"DEBUG: Session {data.session_id} EXPIRED. Now: {current_time}, Expiry: {session.expiry_time}")
         raise HTTPException(status_code=400, detail="Session expired")
     
     # Verify Distance (Geo-fencing)
     distance = utils.calculate_distance(data.latitude, data.longitude, session.latitude, session.longitude)
     if distance > 500: # 500 meters radius
-        print(f"DEBUG: Student too far: {distance}m")
+        print(f"DEBUG: Student too far: {distance}m. Student: ({data.latitude}, {data.longitude}), Session: ({session.latitude}, {session.longitude})")
         raise HTTPException(status_code=400, detail=f"Too far from location. Distance: {int(distance)}m")
 
     # Check duplicate
