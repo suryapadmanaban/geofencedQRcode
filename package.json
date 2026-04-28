@@ -1,0 +1,18 @@
+{
+  "name": "geofenced-qr-attendance",
+  "version": "1.0.0",
+  "description": "Root project for Geo-Fenced QR Attendance System",
+  "main": "index.js",
+  "scripts": {
+    "install-all": "npm install && cd frontend && npm install",
+    "backend": "cd backend && venv\\Scripts\\python -m uvicorn main:app --reload --port 8000",
+    "frontend": "cd frontend && npm run dev",
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,green\" \"npm run backend\" \"npm run frontend\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
